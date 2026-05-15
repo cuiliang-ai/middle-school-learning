@@ -1,0 +1,161 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>初中物理 · 浮力</title>
+    <link rel="stylesheet" href="src/styles.css" />
+  </head>
+  <body>
+    <header class="topbar">
+      <a class="brand" href="#">Middle School Learning</a>
+      <nav aria-label="主导航">
+        <a href="#lesson">知识讲解</a>
+        <a href="#lab">实验台</a>
+        <a href="#practice">分层练习</a>
+      </nav>
+    </header>
+
+    <main>
+      <section class="hero" id="lesson">
+        <div class="hero-copy">
+          <p class="eyebrow">初中物理 · 压强与浮力</p>
+          <h1>浮力：为什么钢铁做的船能浮在水面上？</h1>
+          <p class="lead">从排开液体开始理解浮力，用可调实验台观察质量、体积和液体密度如何改变物体的浮沉状态。</p>
+          <div class="objective-row" aria-label="学习目标">
+            <span>会定义</span>
+            <span>会计算</span>
+            <span>会判断浮沉</span>
+            <span>会解释实验</span>
+          </div>
+        </div>
+        <div class="hero-visual" aria-hidden="true">
+          <div class="ship-scene">
+            <div class="sun"></div>
+            <div class="ship">
+              <div class="cargo"></div>
+            </div>
+            <div class="wave wave-a"></div>
+            <div class="wave wave-b"></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="content-grid">
+        <article class="panel">
+          <h2>定义与核心公式</h2>
+          <p>浸在液体或气体中的物体，会受到液体或气体对它向上的力，这个力叫浮力。</p>
+          <div class="formula">F浮 = G排 = ρ液 · g · V排</div>
+          <p>浮力大小由液体密度和排开液体体积决定。初中计算中，g 常取 10 N/kg。</p>
+        </article>
+
+        <article class="panel">
+          <h2>前置知识</h2>
+          <ul>
+            <li>力的单位是 N，重力 G = mg。</li>
+            <li>密度 ρ = m / V，常用单位 kg/m³。</li>
+            <li>体积单位换算：1 cm³ = 0.000001 m³。</li>
+          </ul>
+        </article>
+
+        <article class="panel wide">
+          <h2>易错点</h2>
+          <div class="mistake-list">
+            <p><strong>浮力不是由物体质量直接决定。</strong> 公式里没有物体质量，质量影响的是重力和最终浮沉。</p>
+            <p><strong>漂浮时浮力等于重力。</strong> 最大浮力大于重力时，物体会上浮，直到排水体积变小并达到 F浮 = G。</p>
+            <p><strong>完全浸没后继续加深，浮力不一定变大。</strong> 液体密度不变、排开体积不变时，浮力不变。</p>
+          </div>
+        </article>
+      </section>
+
+      <section class="lab-section" id="lab">
+        <div class="section-title">
+          <p class="eyebrow">交互实验</p>
+          <h2>浮力实验台</h2>
+        </div>
+
+        <div class="lab-layout">
+          <form class="control-panel" id="simulator-form">
+            <label>
+              <span>物体质量 kg</span>
+              <input type="range" name="massKg" min="0.2" max="5" step="0.1" value="1.2" />
+            </label>
+            <label>
+              <span>物体体积 cm³</span>
+              <input type="range" name="volumeCm3" min="200" max="3000" step="100" value="1200" />
+            </label>
+            <label>
+              <span>液体密度 kg/m³</span>
+              <input type="range" name="liquidDensity" min="700" max="1300" step="50" value="1000" />
+            </label>
+            <label>
+              <span>浸入比例 %</span>
+              <input type="range" name="submergedPercent" min="10" max="100" step="5" value="75" />
+            </label>
+          </form>
+
+          <div class="tank-panel" aria-label="浮力动画演示">
+            <div class="tank">
+              <div class="water" id="water-line"></div>
+              <div class="object" id="visual-object" data-state="漂浮趋势"></div>
+              <div class="force force-up">F浮 ↑</div>
+              <div class="force force-down">G ↓</div>
+            </div>
+          </div>
+
+          <aside class="result-panel">
+            <h3>实时结果</h3>
+            <dl>
+              <div><dt>V排</dt><dd id="result-displaced">-</dd></div>
+              <div><dt>F浮</dt><dd id="result-buoyancy">-</dd></div>
+              <div><dt>G</dt><dd id="result-gravity">-</dd></div>
+              <div><dt>物体密度</dt><dd id="result-density">-</dd></div>
+              <div><dt>状态</dt><dd id="result-state">-</dd></div>
+            </dl>
+            <p class="formula-line" id="formula-line"></p>
+            <p class="reason" id="result-reason"></p>
+          </aside>
+        </div>
+      </section>
+
+      <section class="learning-flow">
+        <article>
+          <h2>典型例题</h2>
+          <p>一个物体排开水的体积为 0.003 m³，水的密度为 1000 kg/m³，g 取 10 N/kg，求浮力。</p>
+          <ol>
+            <li>确定公式：F浮 = ρ液 · g · V排。</li>
+            <li>代入数据：F浮 = 1000 × 10 × 0.003。</li>
+            <li>得到结果：F浮 = 30 N。</li>
+          </ol>
+        </article>
+
+        <article>
+          <h2>做题思路模板</h2>
+          <ol>
+            <li>先判断题目问浮力、重力还是浮沉状态。</li>
+            <li>找 V排，不要把物体总体积直接当成 V排，除非完全浸没。</li>
+            <li>统一单位，cm³ 要换成 m³。</li>
+            <li>计算 F浮，再与 G 比较。</li>
+            <li>漂浮或悬浮时优先使用 F浮 = G。</li>
+          </ol>
+        </article>
+
+        <article>
+          <h2>实验探究</h2>
+          <p>用弹簧测力计测物体在空气中的重力，再测浸入液体后的示数。示数减少量就是浮力。改变浸入体积，记录浮力变化，归纳浮力与 V排 的关系。</p>
+        </article>
+      </section>
+
+      <section class="practice" id="practice">
+        <div class="section-title">
+          <p class="eyebrow">即时反馈</p>
+          <h2>分层练习</h2>
+        </div>
+        <form class="quiz-grid" id="quiz-form"></form>
+      </section>
+    </main>
+
+    <script src="src/buoyancy.js"></script>
+    <script src="src/app.js"></script>
+  </body>
+</html>

@@ -1,0 +1,10 @@
+{
+  "name": "middle-school-learning",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Interactive middle-school learning website starting with junior physics.",
+  "scripts": {
+    "test": "node --test"
+  },
+  "devDependencies": {}
+}
