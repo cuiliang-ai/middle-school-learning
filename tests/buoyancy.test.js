@@ -17,7 +17,8 @@ test("calculates buoyancy from liquid density and displaced volume", () => {
   assert.equal(result.display.displacedVolumeM3, 0.002);
   assert.equal(result.display.buoyantForceN, 20);
   assert.equal(result.display.gravityN, 30);
-  assert.equal(result.state, "下沉");
+  assert.equal(result.finalState, "下沉");
+  assert.equal(result.currentMotion, "当前下沉");
 });
 
 test("detects objects that can float when max buoyancy exceeds gravity", () => {
@@ -30,7 +31,8 @@ test("detects objects that can float when max buoyancy exceeds gravity", () => {
 
   assert.equal(result.display.maxBuoyantForceN, 10);
   assert.equal(result.display.gravityN, 8);
-  assert.equal(result.state, "会上浮至漂浮");
+  assert.equal(result.finalState, "漂浮");
+  assert.equal(result.currentMotion, "当前上浮");
 });
 
 test("detects suspension when max buoyancy approximately equals gravity", () => {
@@ -41,7 +43,7 @@ test("detects suspension when max buoyancy approximately equals gravity", () => 
     submergedPercent: 100
   });
 
-  assert.equal(result.state, "悬浮");
+  assert.equal(result.finalState, "悬浮");
 });
 
 test("partial submersion reports floating trend when object can float", () => {
@@ -53,7 +55,9 @@ test("partial submersion reports floating trend when object can float", () => {
   });
 
   assert.equal(result.display.buoyantForceN, 4);
+  assert.equal(result.finalState, "漂浮");
   assert.equal(result.state, "漂浮趋势");
+  assert.equal(result.currentMotion, "当前下沉");
 });
 
 test("evaluates quiz answers with unit-tolerant normalization", () => {
@@ -78,4 +82,22 @@ test("returns error type and explanation for incorrect quiz answers", () => {
   assert.equal(result.correct, false);
   assert.equal(result.errorType, "误把深度当成浮力决定因素");
   assert.match(result.explanation, /V排 不变/);
+});
+
+test("large volume changes continue affecting calculations beyond the visual cap regression point", () => {
+  const smaller = calculateBuoyancy({
+    massKg: 1.2,
+    volumeCm3: 2100,
+    liquidDensity: 1000,
+    submergedPercent: 75
+  });
+  const larger = calculateBuoyancy({
+    massKg: 1.2,
+    volumeCm3: 3000,
+    liquidDensity: 1000,
+    submergedPercent: 75
+  });
+
+  assert.ok(larger.buoyantForceN > smaller.buoyantForceN);
+  assert.ok(larger.displacedVolumeM3 > smaller.displacedVolumeM3);
 });

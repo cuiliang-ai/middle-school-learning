@@ -16,7 +16,7 @@ test("simulator exposes all required controls and result targets", () => {
     assert.match(html, new RegExp(`name=\\"${name}\\"`));
   }
 
-  for (const id of ["result-displaced", "result-buoyancy", "result-gravity", "result-density", "result-state", "result-reason"]) {
+  for (const id of ["result-displaced", "result-buoyancy", "result-gravity", "result-density", "result-motion", "result-state", "result-reason"]) {
     assert.match(html, new RegExp(`id=\\"${id}\\"`));
   }
 });
@@ -27,4 +27,10 @@ test("loads physics model before browser app script", () => {
 
   assert.ok(modelIndex > 0);
   assert.ok(appIndex > modelIndex);
+});
+
+test("controls display live numeric outputs", () => {
+  for (const name of ["massKg", "volumeCm3", "liquidDensity", "submergedPercent"]) {
+    assert.match(html, new RegExp(`data-value-for=\\"${name}\\"`));
+  }
 });

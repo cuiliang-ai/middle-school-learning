@@ -5,6 +5,7 @@ const results = {
   buoyancy: document.querySelector("#result-buoyancy"),
   gravity: document.querySelector("#result-gravity"),
   density: document.querySelector("#result-density"),
+  motion: document.querySelector("#result-motion"),
   state: document.querySelector("#result-state"),
   reason: document.querySelector("#result-reason")
 };
@@ -27,17 +28,24 @@ function updateSimulator() {
   results.buoyancy.textContent = `${data.display.buoyantForceN} N`;
   results.gravity.textContent = `${data.display.gravityN} N`;
   results.density.textContent = `${data.display.objectDensity} kg/m^3`;
-  results.state.textContent = data.state;
-  results.reason.textContent = data.stateReason;
+  results.motion.textContent = data.currentMotion;
+  results.state.textContent = data.finalState;
+  results.reason.textContent = `${data.currentReason} ${data.stateReason}`;
+
+  simulatorForm.querySelectorAll("output[data-value-for]").forEach((output) => {
+    const input = simulatorForm.elements[output.dataset.valueFor];
+    output.textContent = input.value;
+  });
 
   formulaLine.textContent = `F浮 = ${data.liquidDensity} * 10 * ${data.display.displacedVolumeM3} = ${data.display.buoyantForceN} N`;
 
   const depth = 18 + data.submergedPercent * 0.56;
-  const size = Math.max(58, Math.min(112, data.volumeCm3 / 18));
+  const volumeRatio = (data.volumeCm3 - 200) / (3000 - 200);
+  const size = 54 + Math.sqrt(Math.max(0, volumeRatio)) * 104;
   visualObject.style.width = `${size}px`;
   visualObject.style.height = `${size}px`;
   visualObject.style.transform = `translateY(${depth}px)`;
-  visualObject.dataset.state = data.state;
+  visualObject.dataset.state = data.finalState;
   waterLine.style.opacity = String(0.35 + data.submergedPercent / 180);
 }
 
@@ -81,3 +89,4 @@ quizForm.addEventListener("click", (event) => {
 
 renderQuiz();
 updateSimulator();
+

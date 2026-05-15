@@ -263,6 +263,17 @@ label {
   font-weight: 700;
 }
 
+label span {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+output {
+  color: var(--water-dark);
+  font-variant-numeric: tabular-nums;
+}
+
 input[type="range"] {
   accent-color: var(--green);
   width: 100%;
@@ -412,3 +423,4 @@ button {
     flex-wrap: wrap;
   }
 }
+

@@ -35,16 +35,29 @@
     const maxBuoyantForceN = liquidDensity * g * objectVolumeM3;
     const objectDensity = massKg / objectVolumeM3;
 
-    let state = "下沉";
-    let stateReason = "最大浮力小于重力，物体不能被托住。";
+    const tolerance = 0.05;
 
-    if (Math.abs(maxBuoyantForceN - gravityN) < 0.05) {
-      state = "悬浮";
+    let currentMotion = "当前下沉";
+    let currentReason = "当前浮力小于重力，若不外力托住，物体会继续下沉。";
+    if (Math.abs(buoyantForceN - gravityN) < tolerance) {
+      currentMotion = "当前平衡";
+      currentReason = "当前浮力约等于重力，物体此刻受力平衡。";
+    } else if (buoyantForceN > gravityN) {
+      currentMotion = "当前上浮";
+      currentReason = "当前浮力大于重力，物体此刻会向上运动。";
+    }
+
+    let finalState = "下沉";
+    let stateReason = "最大浮力小于重力，物体不能被托住，最终下沉。";
+    if (Math.abs(maxBuoyantForceN - gravityN) < tolerance) {
+      finalState = "悬浮";
       stateReason = "最大浮力约等于重力，物体可以悬浮在液体中。";
     } else if (maxBuoyantForceN > gravityN) {
-      state = submergedRatio < 1 ? "漂浮趋势" : "会上浮至漂浮";
-      stateReason = "最大浮力大于重力，物体最终会浮起来，漂浮时浮力等于重力。";
+      finalState = "漂浮";
+      stateReason = "最大浮力大于重力，物体最终会浮起来；漂浮时浮力等于重力。";
     }
+
+    const state = submergedRatio < 1 && finalState === "漂浮" ? "漂浮趋势" : finalState;
 
     return {
       massKg,
@@ -57,6 +70,9 @@
       gravityN,
       maxBuoyantForceN,
       objectDensity,
+      currentMotion,
+      currentReason,
+      finalState,
       state,
       stateReason,
       display: {
@@ -125,3 +141,4 @@
     quizQuestions
   };
 });
+

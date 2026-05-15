@@ -77,19 +77,19 @@
         <div class="lab-layout">
           <form class="control-panel" id="simulator-form">
             <label>
-              <span>物体质量 kg</span>
+              <span>物体质量 kg <output data-value-for="massKg">1.2</output></span>
               <input type="range" name="massKg" min="0.2" max="5" step="0.1" value="1.2" />
             </label>
             <label>
-              <span>物体体积 cm³</span>
+              <span>物体体积 cm³ <output data-value-for="volumeCm3">1200</output></span>
               <input type="range" name="volumeCm3" min="200" max="3000" step="100" value="1200" />
             </label>
             <label>
-              <span>液体密度 kg/m³</span>
+              <span>液体密度 kg/m³ <output data-value-for="liquidDensity">1000</output></span>
               <input type="range" name="liquidDensity" min="700" max="1300" step="50" value="1000" />
             </label>
             <label>
-              <span>浸入比例 %</span>
+              <span>浸入比例 % <output data-value-for="submergedPercent">75</output></span>
               <input type="range" name="submergedPercent" min="10" max="100" step="5" value="75" />
             </label>
           </form>
@@ -110,7 +110,8 @@
               <div><dt>F浮</dt><dd id="result-buoyancy">-</dd></div>
               <div><dt>G</dt><dd id="result-gravity">-</dd></div>
               <div><dt>物体密度</dt><dd id="result-density">-</dd></div>
-              <div><dt>状态</dt><dd id="result-state">-</dd></div>
+              <div><dt>当前趋势</dt><dd id="result-motion">-</dd></div>
+              <div><dt>最终状态</dt><dd id="result-state">-</dd></div>
             </dl>
             <p class="formula-line" id="formula-line"></p>
             <p class="reason" id="result-reason"></p>
@@ -159,3 +160,4 @@
     <script src="src/app.js"></script>
   </body>
 </html>
+
