@@ -1,3 +1,124 @@
+const learningCatalog = {
+  physics: {
+    title: "物理",
+    description: "从现象、实验和模型理解初中物理核心概念。",
+    topics: [
+      { id: "buoyancy", title: "浮力", chapter: "压强与浮力", status: "完整", summary: "阿基米德原理、浮沉条件、实验测浮力和分层练习。" },
+      { id: "speed", title: "速度", chapter: "运动和力", status: "预览", summary: "用路程和时间理解运动快慢，提供轻量交互模型。" },
+      { id: "ohm", title: "欧姆定律", chapter: "电学", status: "规划中", summary: "电压、电阻、电流之间的关系，后续建设电路实验台。" },
+      { id: "lens", title: "凸透镜成像", chapter: "光学", status: "规划中", summary: "通过拖动物距和焦距理解成像规律。" }
+    ]
+  },
+  math: {
+    title: "数学",
+    description: "用图像、步骤和题型拆解初中数学核心方法。",
+    topics: [
+      { id: "linear-function", title: "一次函数", chapter: "函数", status: "规划中", summary: "理解 k、b 对图像的影响，训练图像与解析式互转。" },
+      { id: "similar-triangle", title: "相似三角形", chapter: "几何", status: "规划中", summary: "相似判定、比例线段和综合几何证明。" },
+      { id: "equation", title: "方程与不等式", chapter: "代数", status: "规划中", summary: "建模、求解和应用题条件翻译。" }
+    ]
+  }
+};
+
+let activeSubject = "physics";
+let activeTopic = "buoyancy";
+const topicList = document.querySelector("#topic-list");
+const subjectTitle = document.querySelector("#subject-title");
+const topicOverview = document.querySelector("#topic-overview");
+const placeholderTitle = document.querySelector("#placeholder-title");
+const placeholderCopy = document.querySelector("#placeholder-copy");
+
+function getActiveTopicMeta() {
+  return learningCatalog[activeSubject].topics.find((topic) => topic.id === activeTopic);
+}
+
+function renderTopicList() {
+  const subject = learningCatalog[activeSubject];
+  subjectTitle.textContent = subject.title;
+  topicList.innerHTML = subject.topics
+    .map(
+      (topic) => `
+        <button type="button" class="topic-button ${topic.id === activeTopic ? "is-active" : ""}" data-topic="${topic.id}">
+          <span>
+            <strong>${topic.title}</strong>
+            <small>${topic.chapter}</small>
+          </span>
+          <em>${topic.status}</em>
+        </button>
+      `
+    )
+    .join("");
+}
+
+function renderTopicOverview() {
+  const subject = learningCatalog[activeSubject];
+  const topic = getActiveTopicMeta();
+  topicOverview.innerHTML = `
+    <div>
+      <p class="eyebrow">${subject.title} · ${topic.chapter}</p>
+      <h2>${topic.title}</h2>
+      <p>${topic.summary}</p>
+    </div>
+    <div class="topic-status-badge">${topic.status}</div>
+  `;
+}
+
+function showTopicPanel() {
+  document.querySelectorAll("[data-topic-panel]").forEach((panel) => {
+    panel.classList.remove("topic-content-active");
+  });
+
+  if (activeTopic === "buoyancy") {
+    document.querySelector('[data-topic-panel="buoyancy"]').classList.add("topic-content-active");
+    return;
+  }
+
+  if (activeTopic === "speed") {
+    document.querySelector('[data-topic-panel="speed"]').classList.add("topic-content-active");
+    updateSpeedLab();
+    return;
+  }
+
+  const topic = getActiveTopicMeta();
+  placeholderTitle.textContent = `${topic.title} · ${topic.status}`;
+  placeholderCopy.textContent = `${topic.summary} 这个知识点会复用浮力页面的学习闭环：定义讲解、交互实验、例题、分层练习和复盘。`;
+  document.querySelector('[data-topic-panel="placeholder"]').classList.add("topic-content-active");
+}
+
+function selectSubject(subjectId) {
+  activeSubject = subjectId;
+  activeTopic = learningCatalog[subjectId].topics[0].id;
+  document.querySelectorAll(".subject-tab").forEach((tab) => {
+    tab.classList.toggle("is-active", tab.dataset.subject === subjectId);
+  });
+  renderPlatform();
+}
+
+function selectTopic(topicId) {
+  activeTopic = topicId;
+  renderPlatform();
+}
+
+function renderPlatform() {
+  renderTopicList();
+  renderTopicOverview();
+  showTopicPanel();
+}
+
+function updateSpeedLab() {
+  const form = document.querySelector("#speed-form");
+  if (!form) {
+    return;
+  }
+
+  const distance = Number(form.distance.value);
+  const time = Number(form.time.value);
+  const speed = Math.round((distance / time + Number.EPSILON) * 100) / 100;
+  form.querySelector('[data-speed-value="distance"]').textContent = distance;
+  form.querySelector('[data-speed-value="time"]').textContent = time;
+  document.querySelector("#speed-result").textContent = `${speed} m/s`;
+}
+
 const simulatorForm = document.querySelector("#simulator-form");
 const quizForm = document.querySelector("#quiz-form");
 const results = {
@@ -231,7 +352,25 @@ function renderReviewItem(question, index) {
       <p><strong>详细解析：</strong>${question.explanation}</p>
     </article>
   `;
-}simulatorForm.addEventListener("input", updateSimulator);
+}
+
+document.querySelectorAll(".subject-tab").forEach((tab) => {
+  tab.addEventListener("click", () => selectSubject(tab.dataset.subject));
+});
+
+topicList.addEventListener("click", (event) => {
+  const button = event.target.closest("button[data-topic]");
+  if (button) {
+    selectTopic(button.dataset.topic);
+  }
+});
+
+const speedForm = document.querySelector("#speed-form");
+if (speedForm) {
+  speedForm.addEventListener("input", updateSpeedLab);
+}
+
+simulatorForm.addEventListener("input", updateSimulator);
 quizForm.addEventListener("click", (event) => {
   const button = event.target.closest("button[data-action]");
   if (!button) {
@@ -248,8 +387,14 @@ quizForm.addEventListener("click", (event) => {
   actions[button.dataset.action]?.();
 });
 
+renderPlatform();
 renderQuiz();
 updateSimulator();
+updateSpeedLab();
+
+
+
+
 
 
 

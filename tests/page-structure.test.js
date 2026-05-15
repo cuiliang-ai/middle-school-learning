@@ -65,3 +65,36 @@ test("static assets include cache-busting versions", () => {
   assert.match(html, /src\/buoyancy\.js\?v=/);
   assert.match(html, /src\/app\.js\?v=/);
 });
+
+
+test("page exposes multi-subject platform structure", () => {
+  for (const text of ["初中核心知识", "物理", "数学", "workspace", "topic-list", "topic-overview"]) {
+    assert.match(html, new RegExp(text));
+  }
+});
+
+test("app includes subject and topic navigation logic", () => {
+  const app = fs.readFileSync(path.join(__dirname, "..", "src", "app.js"), "utf8");
+
+  assert.match(app, /learningCatalog/);
+  assert.match(app, /selectSubject/);
+  assert.match(app, /selectTopic/);
+  assert.match(app, /updateSpeedLab/);
+  assert.match(app, /linear-function/);
+});
+
+test("page includes speed preview controls", () => {
+  assert.match(html, /id="speed-form"/);
+  assert.match(html, /name="distance"/);
+  assert.match(html, /name="time"/);
+  assert.match(html, /id="speed-result"/);
+});
+
+test("platform layout styles are present", () => {
+  const css = fs.readFileSync(path.join(__dirname, "..", "src", "styles.css"), "utf8");
+
+  assert.match(css, /platform-hero/);
+  assert.match(css, /subject-switcher/);
+  assert.match(css, /topic-sidebar/);
+  assert.match(css, /topic-content-active/);
+});
