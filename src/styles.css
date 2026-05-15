@@ -476,3 +476,144 @@ button {
   min-height: 4.8em;
 }
 
+
+.quiz-grid {
+  display: block;
+}
+
+.quiz-progress,
+.quiz-focus-card,
+.review-panel {
+  width: min(860px, 100%);
+  margin: 0 auto;
+}
+
+.quiz-progress {
+  margin-bottom: 16px;
+  padding: 16px 18px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: rgba(255, 253, 246, 0.74);
+}
+
+.progress-topline,
+.quiz-actions,
+.review-hero {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+}
+
+.progress-topline {
+  margin-bottom: 10px;
+  color: var(--muted);
+  font-size: 14px;
+  font-weight: 800;
+}
+
+.progress-track {
+  height: 10px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: #e4dece;
+}
+
+.progress-fill {
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, var(--green), var(--water));
+  transition: width 220ms ease;
+}
+
+.quiz-focus-card {
+  padding: clamp(22px, 4vw, 36px);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: rgba(255, 253, 246, 0.95);
+  box-shadow: var(--shadow);
+}
+
+.quiz-focus-card h4 {
+  font-size: 22px;
+  line-height: 1.55;
+}
+
+.quiz-actions {
+  flex-wrap: wrap;
+  margin: 18px 0;
+}
+
+.quiz-actions button,
+.review-hero button {
+  min-width: 112px;
+  padding: 0 18px;
+}
+
+button:disabled {
+  cursor: not-allowed;
+  opacity: 0.42;
+}
+
+.feedback-panel {
+  min-height: 128px;
+  padding: 16px 18px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #f4efe1;
+}
+
+.feedback-panel p:last-child,
+.review-item p:last-child {
+  margin-bottom: 0;
+}
+
+.review-panel {
+  display: grid;
+  gap: 18px;
+}
+
+.review-hero,
+.review-item {
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: rgba(255, 253, 246, 0.95);
+  box-shadow: 0 12px 30px rgba(40, 48, 42, 0.08);
+}
+
+.review-hero {
+  padding: 24px;
+}
+
+.review-hero h3 {
+  margin-bottom: 8px;
+  font-size: 34px;
+}
+
+.review-list {
+  display: grid;
+  gap: 14px;
+}
+
+.review-item {
+  padding: 20px;
+  border-left: 6px solid #8f3f2c;
+}
+
+.review-item[data-correct="true"] {
+  border-left-color: var(--green);
+}
+
+@media (max-width: 700px) {
+  .progress-topline,
+  .quiz-actions,
+  .review-hero {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .quiz-actions button,
+  .review-hero button {
+    width: 100%;
+  }
+}

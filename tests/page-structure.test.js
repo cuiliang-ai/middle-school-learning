@@ -42,4 +42,19 @@ test("page supports rendered choice questions", () => {
   assert.match(app, /option-list/);
   assert.match(app, /type="radio"/);
   assert.match(app, /详细解析/);
+  assert.match(app, /quizState/);
+  assert.match(app, /renderReview/);
+  assert.match(app, /data-action="submit"/);
+  assert.match(app, /data-action="next"/);
+  assert.match(app, /重新练习/);
+});
+
+
+test("page includes focused quiz flow styles", () => {
+  const css = fs.readFileSync(path.join(__dirname, "..", "src", "styles.css"), "utf8");
+
+  assert.match(css, /quiz-focus-card/);
+  assert.match(css, /quiz-progress/);
+  assert.match(css, /review-panel/);
+  assert.match(css, /progress-fill/);
 });

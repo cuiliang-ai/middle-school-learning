@@ -49,7 +49,16 @@ function updateSimulator() {
   waterLine.style.opacity = String(0.35 + data.submergedPercent / 180);
 }
 
+const quizState = {
+  currentIndex: 0,
+  answers: {},
+  results: {},
+  completed: false
+};
+
 function renderAnswerControl(question) {
+  const savedAnswer = quizState.answers[question.id] || "";
+
   if (question.type === "choice") {
     return `
       <fieldset class="option-list">
@@ -58,7 +67,7 @@ function renderAnswerControl(question) {
           .map(
             (option) => `
               <label class="option-item">
-                <input type="radio" name="${question.id}" value="${option.label}" />
+                <input type="radio" name="${question.id}" value="${option.label}" ${savedAnswer === option.label ? "checked" : ""} />
                 <span>${option.label}. ${option.text}</span>
               </label>
             `
@@ -71,28 +80,9 @@ function renderAnswerControl(question) {
   return `
     <label>
       <span>你的答案</span>
-      <input name="${question.id}" autocomplete="off" placeholder="输入答案" />
+      <input name="${question.id}" autocomplete="off" placeholder="输入答案" value="${savedAnswer}" />
     </label>
   `;
-}
-
-function renderQuiz() {
-  quizForm.innerHTML = Buoyancy.quizQuestions
-    .map(
-      (question, index) => `
-        <article class="quiz-card" data-question-id="${question.id}">
-          <div class="quiz-meta">
-            <span class="level-pill">${question.level}</span>
-            <span class="question-index">${index + 1} / ${Buoyancy.quizQuestions.length}</span>
-          </div>
-          <h4>${question.prompt}</h4>
-          ${renderAnswerControl(question)}
-          <button type="button" data-check="${question.id}">检查</button>
-          <p class="feedback" id="feedback-${question.id}" aria-live="polite"></p>
-        </article>
-      `
-    )
-    .join("");
 }
 
 function getQuestionAnswer(questionId) {
@@ -108,26 +98,160 @@ function getQuestionAnswer(questionId) {
   return field.value;
 }
 
-function checkQuestion(questionId) {
-  const question = Buoyancy.quizQuestions.find((item) => item.id === questionId);
-  const feedback = document.querySelector(`#feedback-${questionId}`);
-  const result = Buoyancy.evaluateAnswer(question, getQuestionAnswer(questionId));
-  feedback.textContent = result.correct
-    ? `${result.message} 详细解析：${result.explanation}`
-    : `${result.message} 错误归因：${result.errorType}。详细解析：${result.explanation}`;
-  feedback.dataset.correct = String(result.correct);
+function getAnsweredCount() {
+  return Object.keys(quizState.results).length;
 }
 
-simulatorForm.addEventListener("input", updateSimulator);
-quizForm.addEventListener("click", (event) => {
-  const button = event.target.closest("button[data-check]");
-  if (button) {
-    checkQuestion(button.dataset.check);
+function renderProgress() {
+  const total = Buoyancy.quizQuestions.length;
+  const answered = getAnsweredCount();
+  const percent = Math.round((answered / total) * 100);
+
+  return `
+    <div class="quiz-progress" aria-label="练习进度">
+      <div class="progress-topline">
+        <span>已完成 ${answered} / ${total}</span>
+        <span>${percent}%</span>
+      </div>
+      <div class="progress-track"><div class="progress-fill" style="width: ${percent}%"></div></div>
+    </div>
+  `;
+}
+
+function renderQuiz() {
+  if (quizState.completed) {
+    renderReview();
+    return;
   }
+
+  const question = Buoyancy.quizQuestions[quizState.currentIndex];
+  const result = quizState.results[question.id];
+  const isLast = quizState.currentIndex === Buoyancy.quizQuestions.length - 1;
+
+  quizForm.innerHTML = `
+    ${renderProgress()}
+    <article class="quiz-focus-card" data-question-id="${question.id}">
+      <div class="quiz-meta">
+        <span class="level-pill">${question.level}</span>
+        <span class="question-index">第 ${quizState.currentIndex + 1} 题 / 共 ${Buoyancy.quizQuestions.length} 题</span>
+      </div>
+      <h4>${question.prompt}</h4>
+      ${renderAnswerControl(question)}
+      <div class="quiz-actions">
+        <button type="button" data-action="prev" ${quizState.currentIndex === 0 ? "disabled" : ""}>上一题</button>
+        <button type="button" data-action="submit">提交本题</button>
+        <button type="button" data-action="next" ${result ? "" : "disabled"}>${isLast ? "查看总复盘" : "下一题"}</button>
+      </div>
+      <div class="feedback-panel" aria-live="polite">
+        ${result ? renderQuestionFeedback(result) : "<p>提交后会显示判定、错误归因和详细解析。</p>"}
+      </div>
+    </article>
+  `;
+}
+
+function renderQuestionFeedback(result) {
+  return `
+    <p class="feedback" data-correct="${result.correct}">${result.correct ? "回答正确。" : `回答错误。错误归因：${result.errorType}。`}</p>
+    <p><strong>详细解析：</strong>${result.explanation}</p>
+  `;
+}
+
+function submitCurrentQuestion() {
+  const question = Buoyancy.quizQuestions[quizState.currentIndex];
+  const answer = getQuestionAnswer(question.id);
+  quizState.answers[question.id] = answer;
+  quizState.results[question.id] = {
+    ...Buoyancy.evaluateAnswer(question, answer),
+    answer
+  };
+  renderQuiz();
+}
+
+function goToNextQuestion() {
+  const isLast = quizState.currentIndex === Buoyancy.quizQuestions.length - 1;
+  if (isLast) {
+    quizState.completed = true;
+  } else {
+    quizState.currentIndex += 1;
+  }
+  renderQuiz();
+}
+
+function goToPreviousQuestion() {
+  quizState.currentIndex = Math.max(0, quizState.currentIndex - 1);
+  renderQuiz();
+}
+
+function restartQuiz() {
+  quizState.currentIndex = 0;
+  quizState.answers = {};
+  quizState.results = {};
+  quizState.completed = false;
+  renderQuiz();
+}
+
+function renderReview() {
+  const total = Buoyancy.quizQuestions.length;
+  const correctCount = Buoyancy.quizQuestions.filter((question) => quizState.results[question.id]?.correct).length;
+  const percent = Math.round((correctCount / total) * 100);
+
+  quizForm.innerHTML = `
+    <section class="review-panel">
+      <div class="review-hero">
+        <div>
+          <p class="eyebrow">练习复盘</p>
+          <h3>${correctCount} / ${total} 题正确</h3>
+          <p>正确率 ${percent}%。下面按题目列出你的答案、正确情况和详细讲解。</p>
+        </div>
+        <button type="button" data-action="restart">重新练习</button>
+      </div>
+      <div class="review-list">
+        ${Buoyancy.quizQuestions.map((question, index) => renderReviewItem(question, index)).join("")}
+      </div>
+    </section>
+  `;
+}
+
+function renderReviewItem(question, index) {
+  const result = quizState.results[question.id];
+  const answer = result?.answer || "未作答";
+  const correctAnswer = question.answers[0];
+
+  return `
+    <article class="review-item" data-correct="${Boolean(result?.correct)}">
+      <div class="quiz-meta">
+        <span class="level-pill">${question.level}</span>
+        <span class="question-index">第 ${index + 1} 题</span>
+      </div>
+      <h4>${question.prompt}</h4>
+      <p><strong>你的答案：</strong>${answer || "未作答"}</p>
+      <p><strong>参考答案：</strong>${correctAnswer}</p>
+      <p><strong>判定：</strong>${result?.correct ? "正确" : "错误"}</p>
+      ${result?.correct ? "" : `<p><strong>错误归因：</strong>${result?.errorType || question.errorType}</p>`}
+      <p><strong>详细解析：</strong>${question.explanation}</p>
+    </article>
+  `;
+}simulatorForm.addEventListener("input", updateSimulator);
+quizForm.addEventListener("click", (event) => {
+  const button = event.target.closest("button[data-action]");
+  if (!button) {
+    return;
+  }
+
+  const actions = {
+    submit: submitCurrentQuestion,
+    next: goToNextQuestion,
+    prev: goToPreviousQuestion,
+    restart: restartQuiz
+  };
+
+  actions[button.dataset.action]?.();
 });
 
 renderQuiz();
 updateSimulator();
+
+
 
 
 
