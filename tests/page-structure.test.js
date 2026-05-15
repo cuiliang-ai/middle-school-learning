@@ -34,3 +34,12 @@ test("controls display live numeric outputs", () => {
     assert.match(html, new RegExp(`data-value-for=\\"${name}\\"`));
   }
 });
+
+test("page supports rendered choice questions", () => {
+  const app = fs.readFileSync(path.join(__dirname, "..", "src", "app.js"), "utf8");
+
+  assert.match(app, /type === "choice"/);
+  assert.match(app, /option-list/);
+  assert.match(app, /type="radio"/);
+  assert.match(app, /详细解析/);
+});

@@ -49,17 +49,44 @@ function updateSimulator() {
   waterLine.style.opacity = String(0.35 + data.submergedPercent / 180);
 }
 
+function renderAnswerControl(question) {
+  if (question.type === "choice") {
+    return `
+      <fieldset class="option-list">
+        <legend>选择答案</legend>
+        ${question.options
+          .map(
+            (option) => `
+              <label class="option-item">
+                <input type="radio" name="${question.id}" value="${option.label}" />
+                <span>${option.label}. ${option.text}</span>
+              </label>
+            `
+          )
+          .join("")}
+      </fieldset>
+    `;
+  }
+
+  return `
+    <label>
+      <span>你的答案</span>
+      <input name="${question.id}" autocomplete="off" placeholder="输入答案" />
+    </label>
+  `;
+}
+
 function renderQuiz() {
   quizForm.innerHTML = Buoyancy.quizQuestions
     .map(
-      (question) => `
+      (question, index) => `
         <article class="quiz-card" data-question-id="${question.id}">
-          <div class="level-pill">${question.level}</div>
+          <div class="quiz-meta">
+            <span class="level-pill">${question.level}</span>
+            <span class="question-index">${index + 1} / ${Buoyancy.quizQuestions.length}</span>
+          </div>
           <h4>${question.prompt}</h4>
-          <label>
-            <span>你的答案</span>
-            <input name="${question.id}" autocomplete="off" placeholder="输入答案" />
-          </label>
+          ${renderAnswerControl(question)}
           <button type="button" data-check="${question.id}">检查</button>
           <p class="feedback" id="feedback-${question.id}" aria-live="polite"></p>
         </article>
@@ -68,14 +95,26 @@ function renderQuiz() {
     .join("");
 }
 
+function getQuestionAnswer(questionId) {
+  const field = quizForm.elements[questionId];
+  if (!field) {
+    return "";
+  }
+
+  if (field instanceof RadioNodeList) {
+    return field.value;
+  }
+
+  return field.value;
+}
+
 function checkQuestion(questionId) {
   const question = Buoyancy.quizQuestions.find((item) => item.id === questionId);
-  const input = quizForm.elements[questionId];
   const feedback = document.querySelector(`#feedback-${questionId}`);
-  const result = Buoyancy.evaluateAnswer(question, input.value);
+  const result = Buoyancy.evaluateAnswer(question, getQuestionAnswer(questionId));
   feedback.textContent = result.correct
-    ? `${result.message} ${result.explanation}`
-    : `${result.message} 错误归因：${result.errorType}。解析：${result.explanation}`;
+    ? `${result.message} 详细解析：${result.explanation}`
+    : `${result.message} 错误归因：${result.errorType}。详细解析：${result.explanation}`;
   feedback.dataset.correct = String(result.correct);
 }
 
@@ -89,4 +128,6 @@ quizForm.addEventListener("click", (event) => {
 
 renderQuiz();
 updateSimulator();
+
+
 

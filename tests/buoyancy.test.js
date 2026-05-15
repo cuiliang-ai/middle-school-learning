@@ -61,7 +61,7 @@ test("partial submersion reports floating trend when object can float", () => {
 });
 
 test("evaluates quiz answers with unit-tolerant normalization", () => {
-  const question = quizQuestions.find((item) => item.id === "basic-force");
+  const question = quizQuestions.find((item) => item.id === "easy-formula");
   const result = evaluateAnswer(question, "20 N");
 
   assert.equal(result.correct, true);
@@ -69,7 +69,7 @@ test("evaluates quiz answers with unit-tolerant normalization", () => {
 });
 
 test("accepts equivalent text answers", () => {
-  const question = quizQuestions.find((item) => item.id === "middle-state");
+  const question = quizQuestions.find((item) => item.id === "middle-float-state");
   const result = evaluateAnswer(question, "上浮后漂浮");
 
   assert.equal(result.correct, true);
@@ -81,7 +81,7 @@ test("returns error type and explanation for incorrect quiz answers", () => {
 
   assert.equal(result.correct, false);
   assert.equal(result.errorType, "误把深度当成浮力决定因素");
-  assert.match(result.explanation, /V排 不变/);
+  assert.match(result.explanation, /V排 .*不变/);
 });
 
 test("large volume changes continue affecting calculations beyond the visual cap regression point", () => {
@@ -101,3 +101,35 @@ test("large volume changes continue affecting calculations beyond the visual cap
   assert.ok(larger.buoyantForceN > smaller.buoyantForceN);
   assert.ok(larger.displacedVolumeM3 > smaller.displacedVolumeM3);
 });
+
+test("quiz contains 10 questions with expected difficulty distribution", () => {
+  const distribution = quizQuestions.reduce((counts, question) => {
+    counts[question.level] = (counts[question.level] || 0) + 1;
+    return counts;
+  }, {});
+
+  assert.equal(quizQuestions.length, 10);
+  assert.equal(distribution["简单"], 3);
+  assert.equal(distribution["中档"], 5);
+  assert.equal(distribution["难"], 2);
+});
+
+test("every quiz question has detailed explanation and error attribution", () => {
+  for (const question of quizQuestions) {
+    assert.ok(question.explanation.length >= 45, `${question.id} explanation is too short`);
+    assert.ok(question.errorType.length > 0, `${question.id} missing error type`);
+    assert.ok(question.hint.length > 0, `${question.id} missing hint`);
+  }
+});
+
+test("choice questions include options and can be graded by label", () => {
+  const choiceQuestions = quizQuestions.filter((question) => question.type === "choice");
+
+  assert.ok(choiceQuestions.length >= 5);
+  for (const question of choiceQuestions) {
+    assert.ok(question.options.length >= 4, `${question.id} should have at least four options`);
+    const result = evaluateAnswer(question, question.answers[0]);
+    assert.equal(result.correct, true);
+  }
+});
+

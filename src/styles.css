@@ -375,7 +375,8 @@ dd {
   padding: 20px;
 }
 
-.quiz-card input {
+.quiz-card input[type="text"],
+.quiz-card input:not([type]) {
   min-height: 42px;
   border: 1px solid var(--line);
   border-radius: 6px;
@@ -422,5 +423,56 @@ button {
   nav {
     flex-wrap: wrap;
   }
+}
+
+
+
+.quiz-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.question-index {
+  color: var(--muted);
+  font-size: 13px;
+  font-variant-numeric: tabular-nums;
+}
+
+.option-list {
+  display: grid;
+  gap: 8px;
+  margin: 0 0 14px;
+  padding: 0;
+  border: 0;
+}
+
+.option-list legend {
+  margin-bottom: 6px;
+  color: var(--muted);
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.option-item {
+  display: grid;
+  grid-template-columns: 18px minmax(0, 1fr);
+  align-items: start;
+  gap: 9px;
+  padding: 9px 10px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: rgba(247, 244, 234, 0.52);
+  font-weight: 600;
+}
+
+.option-item span {
+  display: block;
+}
+
+.feedback {
+  min-height: 4.8em;
 }
 
