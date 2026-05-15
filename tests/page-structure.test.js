@@ -22,8 +22,8 @@ test("simulator exposes all required controls and result targets", () => {
 });
 
 test("loads physics model before browser app script", () => {
-  const modelIndex = html.indexOf('src="src/buoyancy.js"');
-  const appIndex = html.indexOf('src="src/app.js"');
+  const modelIndex = html.indexOf('src="src/buoyancy.js');
+  const appIndex = html.indexOf('src="src/app.js');
 
   assert.ok(modelIndex > 0);
   assert.ok(appIndex > modelIndex);
@@ -57,4 +57,11 @@ test("page includes focused quiz flow styles", () => {
   assert.match(css, /quiz-progress/);
   assert.match(css, /review-panel/);
   assert.match(css, /progress-fill/);
+});
+
+
+test("static assets include cache-busting versions", () => {
+  assert.match(html, /src\/styles\.css\?v=/);
+  assert.match(html, /src\/buoyancy\.js\?v=/);
+  assert.match(html, /src\/app\.js\?v=/);
 });
